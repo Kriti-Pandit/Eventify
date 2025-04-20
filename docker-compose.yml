@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "4001:4000"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URL=${MONGO_URL}
+      - PORT=4000
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    restart: unless-stopped  # Auto-restart on crashes
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
