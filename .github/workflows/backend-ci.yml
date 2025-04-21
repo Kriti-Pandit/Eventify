@@ -1,0 +1,36 @@
+name: Backend CI (Node.js + MongoDB Atlas)
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - uses: actions/checkout@v4
+
+      # Setup Node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      # Install dependencies
+      - run: npm ci
+        working-directory: ./api  # Target backend directory
+
+      # Load environment variables
+      - run: |
+          echo "MONGO_URI=${{ secrets.MONGO_ATLAS_URI_TEST }}" >> ./api/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET_TEST }}" >> ./api/.env
+          echo "CLIENT_URL=${{ secrets.CLIENT_URL_TEST }}" >> ./api/.env
+          echo "PORT=4000" >> ./api/.env
+
+      # Run tests (ensure your tests clean up Atlas data!)
+      - run: npm test
+        working-directory: ./api
+
+      # Lint (if ESLint is configured)
+      - run: npm run lint
+        working-directory: ./api
+        continue-on-error: true  # Optional: Don't fail CI for linting
