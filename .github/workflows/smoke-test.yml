@@ -4,12 +4,13 @@ on: [push, pull_request]
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./api  # Set once for all steps
-
+    
     steps:
       - uses: actions/checkout@v4
+
+      # EXPLICITLY CHANGE DIRECTORY FIRST
+      - name: Navigate to api folder
+        run: cd api && pwd  # Verify we're in the right place
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -17,19 +18,21 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci  # Now runs in ./api automatically
+      # ALL FOLLOWING STEPS RUN IN /api
+      - name: Verify package.json exists
+        run: ls -la && cat package.json  # Debug file location
+        working-directory: ./api
 
-      - name: Create .env file
-        run: |
-          echo "MONGO_URI=${{ secrets.MONGO_ATLAS_URI_TEST }}" > .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET_TEST }}" >> .env
-          echo "PORT=4000" >> .env
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./api
 
       - name: Run smoke test
+        working-directory: ./api
         run: |
           npm start &
           SERVER_PID=$!
           sleep 10
+          curl -v http://localhost:4000/api/health  # Add verbose logging
           curl -s http://localhost:4000/api/health | grep -q '"status":"healthy"' || exit 1
           kill $SERVER_PID
