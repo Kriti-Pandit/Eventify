@@ -2,16 +2,19 @@ name: Run Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -21,8 +24,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./api
 
       - name: Run tests
         run: npm test
-        working-directory: ./api
