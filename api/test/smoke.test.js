@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../server');
+const app = require('../index');
 
 describe('Smoke Test', () => {
   it('Server should start', async () => {
