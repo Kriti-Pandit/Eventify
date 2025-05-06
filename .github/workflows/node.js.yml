@@ -11,10 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: api  # 👈 change this to the folder where your backend lives
+        working-directory: api  # 👈 This tells GitHub Actions to run commands inside the `api/` folder
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Use Node.js
         uses: actions/setup-node@v3
