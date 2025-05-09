@@ -1,0 +1,49 @@
+name: Ubuntu Debug Info
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  debug-info:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Show OS and Kernel Info
+        run: uname -a
+
+      - name: List All Installed Packages
+        run: dpkg -l | head -n 20  # limits to first 20 for brevity
+
+      - name: Check Node.js and npm Versions
+        run: node -v && npm -v
+
+      - name: Check for Common DevOps Tools
+        run: which git && which curl && which docker && which python3
+
+      - name: List Environment Variables
+        run: printenv | sort
+
+      - name: Show Current Directory and Files
+        run: pwd && ls -la
+
+      - name: Git Repository Status
+        run: git status
+
+      - name: Show Current Shell
+        run: echo $SHELL
+
+      - name: List All PATH Directories
+        run: echo $PATH | tr ':' '\n'
+
+      - name: Show GitHub Context Variables
+        run: |
+          echo "Workflow: $GITHUB_WORKFLOW"
+          echo "Repo: $GITHUB_REPOSITORY"
+          echo "Actor: $GITHUB_ACTOR"
+          echo "Event: $GITHUB_EVENT_NAME"
