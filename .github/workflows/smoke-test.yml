@@ -4,13 +4,14 @@ on: [push, pull_request]
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
 
-      # EXPLICITLY CHANGE DIRECTORY FIRST
-      - name: Navigate to api folder
-        run: cd api && pwd  # Verify we're in the right place
+    defaults:
+      run:
+        working-directory: ./api
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -18,21 +19,14 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      # ALL FOLLOWING STEPS RUN IN /api
-      - name: Verify package.json exists
-        run: ls -la && cat package.json  # Debug file location
-        working-directory: ./api
-
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci
-        working-directory: ./api
 
-      - name: Run smoke test
-        working-directory: ./api
+      - name: Start Backend and Run Smoke Test
         run: |
-          npm start &
-          SERVER_PID=$!
-          sleep 10
-          curl -v http://localhost:4000/api/health  # Add verbose logging
-          curl -s http://localhost:4000/api/health | grep -q '"status":"healthy"' || exit 1
-          kill $SERVER_PID
+          nohup npm start > server.log 2>&1 &
+          echo "Started backend server"
+          sleep 10  # Wait for server to boot
+          echo "Checking health endpoint"
+          curl -v http://localhost:4000/api/health
+          curl -s http://localhost:4000/api/health | grep -q '"status":"healthy"'
