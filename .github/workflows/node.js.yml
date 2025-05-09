@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./api  # Change this if your backend folder is different
+        working-directory: ./api  
 
     steps:
       - name: ⬇️ Checkout code
