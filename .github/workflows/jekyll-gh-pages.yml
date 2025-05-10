@@ -1,4 +1,4 @@
-name: Deploy Jekyll to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -11,30 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  # Make sure this step is included to check out the repository
 
-      # Setup Ruby environment
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          ruby-version: '2.7'  # You can change this to the Ruby version used by your Jekyll site
+          node-version: '16'  # Use the appropriate Node.js version for your project
 
-      # Install dependencies
-      - name: Install dependencies
-        run: |
-          gem install jekyll bundler
-          bundle install
+      - name: Install dependencies using npm ci
+        run: npm ci
 
-      # Build the Jekyll site
-      - name: Build the site with Jekyll
-        run: |
-          bundle exec jekyll build
-
-      # Deploy to GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages  # The branch to deploy to
-          folder: _site     # The folder where Jekyll builds the site
+      - name: Build your project
+        run: npm run build  # Or the command you need to build your project
