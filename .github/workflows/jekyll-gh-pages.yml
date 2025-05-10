@@ -1,61 +1,40 @@
-name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+name: Deploy Jekyll to GitHub Pages
 
 on:
-  # Runs on pushes targeting the default branch (e.g., main)
   push:
-    branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches:
+      - main
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Setup Jekyll
-        uses: actions/setup-ruby@v1
+      # Setup Ruby environment
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7'  # Adjust to your Ruby version
+          ruby-version: '2.7'  # You can change this to the Ruby version used by your Jekyll site
 
+      # Install dependencies
       - name: Install dependencies
         run: |
-          gem install jekyll
-          gem install bundler
+          gem install jekyll bundler
           bundle install
 
-      - name: Build with Jekyll
+      # Build the Jekyll site
+      - name: Build the site with Jekyll
         run: |
-          bundle exec jekyll build --source . --destination ./_site
+          bundle exec jekyll build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./_site
-
-  # Deployment job
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
+      # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages  # The branch to deploy to
+          folder: _site     # The folder where Jekyll builds the site
